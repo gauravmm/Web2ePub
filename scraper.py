@@ -6,6 +6,7 @@ Given a URL, finds a parser and scrapes the input, optionally caching it.
 """
 import os, requests, pickle, re;
 from parsers import getparser;
+from publisher import imagepath;
 
 # For debugging purposes, this allows us to cache arbitrary scraper input.
 # This means we can quickly test ePub output.
@@ -47,7 +48,7 @@ def scrape_nocache(url):
         if pid in done:
             continue;
         
-        img_pre = parser.getSimplePageId(pid);
+        img_pre = imagepath(parser.getSimplePageId(pid));
         dl = parser.getUrlFromId(pid);
         print "Downloading " + dl;
         # Download dl

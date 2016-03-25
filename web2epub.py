@@ -29,20 +29,21 @@ def run(args):
     else:
         fout = title_fn(web[0]["title"]);
 
-    print fout;
+    epub(web, fout, args.style);
 
 if __name__ == "__main__":
     # Parse incoming arguments:
     parser = argparse.ArgumentParser(description='Converts articles/posts/entries from online sources into an ePub file.');
     parser.add_argument('url', type=arg_url, help='A URL to start from.');
     parser.add_argument('-o', '--out', type=str, metavar="OUTPUT", nargs=1, help='The filename to write to. epub automatically appended if necessary.');
+    parser.add_argument('-s', '--style', type=str, metavar="OUTPUT", nargs=1, default="def", help='The output style to use.');
+
 
     # args = parser.parse_args();
     args = parser.parse_args(["http://m.fanfiction.net/s/5483280/1/Harry-Potter-and-the-Champion-s-Champion"]);
    
     try:
         run(args);
-        
     except (RuntimeError, TypeError) as e:
         print "Error: {0}".format(e);
         raise;
