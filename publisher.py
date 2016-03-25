@@ -54,7 +54,7 @@ def buildTOCInner(chapterList):
     return toc;
 
 MIMELookup = {".xhtml": "application/xhtml+xml", ".html": "text/html", ".css": "text/css", ".jpg": "image/jpeg",
-              ".gif": "image/gif", ".png": "image/png", ".svg": "iamge/svg+xml"};
+              ".gif": "image/gif", ".png": "image/png", ".svg": "iamge/svg+xml", ".ncx": "application/x-dtbncx+xml"};
 def getMIMEFromFn(fn):
     fnb, ext = path.splitext(fn);
     ext = ext.lower();
@@ -111,7 +111,7 @@ def buildOPF(uid, modtime, bookmeta, filelist, spinelist):
     package.append(manifest);
 
     # Spine is the third.
-    spine = soup.new_tag("spine");
+    spine = soup.new_tag("spine", toc="ncx");
     for fn, cont, name, id, opt in spinelist:
         # Start each chapter on a right page:
         v = {"idref": id};
@@ -122,6 +122,48 @@ def buildOPF(uid, modtime, bookmeta, filelist, spinelist):
 
         
     return soup.prettify();
+
+def buildNCX(uid, bookmeta, filelist):
+    soup = bs4(features='xml');
+    ncx = soup.new_tag("ncx", **{"xmlns": "http://www.daisy.org/z3986/2005/ncx/", "version": "2005-1"});
+    
+    # Set up shorthand to add an element with some contents:
+    def soup_tag(a, c):
+        rv = soup.new_tag(a);
+        rv.append(c);
+        return rv;
+        
+    def meta_tag(n, c):
+        rv = soup.new_tag("meta", **{"content": c });
+        rv.attrs['name'] = n;
+        return rv;
+
+    
+    head = soup.new_tag("head");
+    head.append(meta_tag("dtb:uid", uid));
+    head.append(meta_tag("dtb:depth", "1"));
+    head.append(meta_tag("dtb:totalPageCount", "0"));
+    head.append(meta_tag("dtb:maxPageNumber", "0"));
+    ncx.append(head);
+
+    ncx.append(soup_tag("docTitle", soup_tag("text", bookmeta["title"])));
+    ncx.append(soup_tag("docAuthor", soup_tag("text", bookmeta["author"])));
+    # TODO: Cover page support.
+    
+    navmap = soup.new_tag("navMap");
+    i = 0;
+    for fname, data, name, id, opt in filelist:
+        v = {"id": "navpoint-" + id};
+        if "linear" not in opt or opt["linear"]:
+            i += 1;
+            v["playOrder"] = str(i);
+        navpoint = soup.new_tag('navPoint', **v);
+        navpoint.append(soup_tag("navLabel", soup_tag("text", name)));
+        navpoint.append(soup.new_tag("content", src=fname));
+        navmap.append(navpoint);
+    ncx.append(navmap);
+
+    return ncx.prettify();
 
 
 def epub(inp, fn, style_devstr):
@@ -147,16 +189,18 @@ def epub(inp, fn, style_devstr):
        
     if len(imgs) > 0:
         print "Images are not supported yet!";  
+        
     
     # The cover and TOC
     cover = (htmlFn("cover"), styler.cover(meta), "Cover", "cover", {"linear": True});
     toc = (htmlFn("toc"), styler.contents(buildTOCInner(chapterList)),  "Table of Contents", "toc", {"linear": False, "nav": True});
     
-    cssList = [("style.css", styler.css(), "Main Stylesheet", "style", {})];
     spineList = [cover, toc] + chapterList;
     spineList = [(fname, styler.page(meta["title"] + ": " + name, data), name, id, opt) for (fname, data, name, id, opt) in spineList]
     imageList = [];    # TODO: Add every image to imageList;
-    fileList = spineList + cssList + imageList;
+    auxList = [("style.css", styler.css(), "Main Stylesheet", "style", {}),
+           ("toc.ncx", buildNCX(uid, meta,spineList), "Navigation Control", "ncx", {})];
+    fileList = spineList + auxList + imageList;
     
     # Write the OPF file:
     opf = buildOPF(uid, modtime, meta, fileList, spineList);    

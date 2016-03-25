@@ -1,5 +1,8 @@
 from bs4 import BeautifulSoup as bs4;
 from bs4 import NavigableString;
+from bs4.dammit import EntitySubstitution
+
+escapeHTML = (EntitySubstitution()).substitute_xml;
 
 # Base class for all website parsers.
 class BaseWebsiteParser(object):
@@ -99,15 +102,16 @@ class FFNetParser(BaseWebsiteParser):
         # Parse the header for metadata:
         header = soup.find('div', id='content');    
         titlebar = header.find('div', align='center').contents;
-        rv["title"] = titlebar[0].get_text("", strip=True);
-        rv["author"] = titlebar[2].get_text("", strip=True);
+        
+        rv["title"] = escapeHTML(titlebar[0].get_text("", strip=True));
+        rv["author"] = escapeHTML(titlebar[2].get_text("", strip=True));
         
         comment = [x for x in header.stripped_strings];
-        rv["comment"] = "\n".join(" ".join(c) for c in [comment[0:3], comment[3:10]])
-        rv["name"] = comment[-1];
+        rv["comment"] = escapeHTML("\n".join(" ".join(c) for c in [comment[0:3], comment[3:10]]))
+        rv["name"] = escapeHTML(comment[-1]);
               
         # Flatten it into a single array
-        rv["data"] = "";
+        rv["data"] = unicode("");
         lines = (self._processLine(i, ch) for i, ch in enumerate(soup.find('div', id='storycontent').children));
         for l in lines:
             rv["data"] += "\n" + l;
@@ -123,7 +127,7 @@ class FFNetParser(BaseWebsiteParser):
             if(len(str(ch).strip()) == 0):
                 return "";
             else:
-                return "<p>" + unicode(ch) + "</p>";
+                return "<p>" + ch.prettify(formatter='html') + "</p>";
         else:
             if self._heuristicIsSeparator(ch):
                 return "<hr />"; # We customize this in CSS.
@@ -131,7 +135,7 @@ class FFNetParser(BaseWebsiteParser):
                 h = "h" + str(self._heuristicTitleState);
                 return unicode("<" + h + ">" + ch.get_text(" ", strip=True) + "</" + h + ">")
             else:
-                return unicode(ch);
+                return ch.prettify(formatter='html');
     
     def _heuristicIsSeparator(self, ch):
         if(ch.name == "hr"):

@@ -28,7 +28,7 @@ class StyleBase(object):
 
     def cover(self, bookmeta):
         # Assemble the cover page.
-        return "<h1>%s</h1>\n<p><em>%s</em></p>" % (bookmeta["title"], bookmeta["author"]);
+        return "<div id=\"cover\"><h1>%s</h1>\n<div>%s</div></div>" % (bookmeta["title"], bookmeta["author"]);
     
     def contents(self, inner):
         # Assemble the table-of-contents.
@@ -37,6 +37,10 @@ class StyleBase(object):
     def css(self):
         return """/* Basic CSS */
         body { margin: 5px; }
+        nav#toc ol { list-style-type: none; }
+        #cover { text-align: center; width: 100%; height: 90%; border: thick solid black;}
+        #cover h1 { padding-top: 100px; font-size: 200%; }
+        #cover div { padding-top: 50px; font-style: italic; width: 100%; }
         """;
          
 
