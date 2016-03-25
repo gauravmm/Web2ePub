@@ -5,7 +5,7 @@ Given a URL, finds a parser and scrapes the input, optionally caching it.
 @author: GauravManek
 """
 import os, requests, pickle, re;
-from parsers import getparser;
+from plugins import getParser;
 from publisher import imagepath;
 
 # For debugging purposes, this allows us to cache arbitrary scraper input.
@@ -16,7 +16,7 @@ def scrape(url):
     urlstr = re.sub("[^0-9a-zA-Z]", '_', str(".".join([url.netloc, url.path])));
     fn = folder + urlstr + ".pickle";
     if os.path.isfile(fn):
-        print "Loaded " + str(urlstr) + " from cache.";
+        print "\tFound " + str(urlstr) + " in cache.";
         with open(fn, 'rb') as f:
             return pickle.load(f);
     else:
@@ -32,7 +32,7 @@ def scrape_nocache(url):
     if not parser:
         raise RuntimeError("Cannot find a parser that supports this website.");
     
-    print "Scraping with " + parser.name + " parser";
+    print "\tScraping with " + parser.name + " parser";
     
     done = [];
     pages = [];
@@ -50,7 +50,7 @@ def scrape_nocache(url):
         
         img_pre = imagepath(parser.getSimplePageId(pid));
         dl = parser.getUrlFromId(pid);
-        print "Downloading " + dl;
+        print "\tDownloading " + dl;
         # Download dl
         req = requests.get(dl);
 

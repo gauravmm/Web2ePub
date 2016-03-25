@@ -15,6 +15,7 @@ sys.path.append(PLUGIN_DIR);
 
 parsers = [];
 stylers = [];
+covers = [];
 global _attemptedRegistration;
 
 def register(plugin):
@@ -24,13 +25,18 @@ def register(plugin):
         parsers.append(plugin);
     elif isinstance(plugin, BaseStyle):
         stylers.append(plugin);
+    elif isinstance(plugin, BaseCover):
+        covers.append(plugin);
     else:
         print "Plugin " + str(plugin) + " not recognized!";
 
-def getStyle(devstr):
-    for styler in stylers:
-        if devstr == styler.devstr:
-            return styler;
+def _getDevStr(arr, devstr):
+    for s in arr:
+        if devstr == s.devstr:
+            return s;
+
+getStyle = lambda devstr: _getDevStr(stylers, devstr);
+getCover = lambda devstr: _getDevStr(covers, devstr);
 
 def getParser(url):
     for p in parsers:
@@ -83,6 +89,7 @@ class BaseWebsiteParser(object):
     # entries:
     #   rv["title"]  = The title of the file
     #   rv["author"] = The author of the file
+    #   rv["cover"]  = The URL of the cover image
     #   rv["comment"]= Any additional comment/metadata to include.
     #   rv["name"]   = The title of the page, used in the spine/TOC.
     #   rv["data"]   = HTML source to put in the ePub, normalized (i.e. with 
@@ -145,3 +152,22 @@ class BaseStyle(object):
     #   bookmeta = The book metadata.
     def css(self, bookmeta):
         return "/* Basic CSS */";
+
+
+# Base class for all coverpage generators.
+class BaseCover(object):
+    def __init__(self):
+        # A short string used to report this name in the style.
+        self.name = "Base Cover";
+        # A short string used to identify this styling option in the commandline.
+        # Does not have to be different than the Style devstr
+        self.devstr = "abc";
+
+    # Produces a (ext, data) tuple, given:
+    #   bookmeta = The book metadata.
+    #
+    # The output is:
+    #   ext  = File extension of data, which must be supported by the ePub standard.
+    #   data = Image Data.
+    def cover(self, bookmeta):
+        return ("svg", "<svg></svg>");

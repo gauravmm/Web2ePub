@@ -8,7 +8,7 @@ Gaurav Manek
 import zipfile, uuid;
 from os import path;
 from time import strftime, gmtime;
-from styling import getstyle;
+from plugins import getStyle, getCover;
 from bs4 import BeautifulSoup as bs4;
 
 # Aribtrary UUID used as the parent for all generated books:
@@ -59,7 +59,7 @@ def getMIMEFromFn(fn):
     fnb, ext = path.splitext(fn);
     ext = ext.lower();
     if ext not in MIMELookup:
-        print "Unrecognized MIME for file \"" + fn + "\"";
+        print "\tUnrecognized MIME for file \"" + fn + "\"";
         return "application/dunno";
     else:
         return MIMELookup[ext];
@@ -166,7 +166,7 @@ def buildNCX(uid, bookmeta, filelist):
     return ncx.prettify();
 
 
-def epub(inp, fn, style_devstr):
+def epub(inp, fn, args):
     # Split it into metadata, chapters, and images.    
     meta, chpt, imgs = inp;
     # Sort the chapters
@@ -182,13 +182,19 @@ def epub(inp, fn, style_devstr):
     # As a 5-tuple: Filename, content, Text title, id, additional properties
     chapterList = [(htmlFn(id), ch["content"], ch["name"], "c" + str(id), {}) for (id, ch) in chpt];
     
-    styler = getstyle(style_devstr);
+    styler = getStyle(args.style);
     if not styler:
-        raise RuntimeError("Cannot find output style " + style_devstr + ".");
-    print "Styling for " + styler.name + ".";
+        raise RuntimeError("Cannot find output style " + args.style + ".");
+    print "\tStyle: \t" + styler.name + ".";
+
+    # Create a cover page if we need to:
+    if "cover" not in meta and not args.no_cover:
+        cover = getCover(args.cover);
+        print "\tCover: \t" + cover.name + ".";
+
        
     if len(imgs) > 0:
-        print "Images are not supported yet!";  
+        print "\tImages are not supported yet!";  
         
     
     # The cover and TOC
