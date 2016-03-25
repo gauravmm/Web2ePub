@@ -114,7 +114,7 @@ def buildOPF(uid, modtime, bookmeta, filelist, spinelist):
     spine = soup.new_tag("spine");
     for fn, cont, name, id, opt in spinelist:
         # Start each chapter on a right page:
-        v = {"properties": "page-spread-right", "idref": id};
+        v = {"idref": id};
         if "linear" in opt and not opt["linear"]:
             v["linear"] = "no";
         spine.append(soup.new_tag("itemref", **v));
@@ -154,6 +154,7 @@ def epub(inp, fn, style_devstr):
     
     cssList = [("style.css", styler.css(), "Main Stylesheet", "style", {})];
     spineList = [cover, toc] + chapterList;
+    spineList = [(fname, styler.page(meta["title"] + ": " + name, data), name, id, opt) for (fname, data, name, id, opt) in spineList]
     imageList = [];    # TODO: Add every image to imageList;
     fileList = spineList + cssList + imageList;
     

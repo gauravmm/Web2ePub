@@ -12,19 +12,19 @@ class StyleBase(object):
         # A short string used to identify this styling option in the commandline.
         self.devstr = "def";
 
-    def page(self, book, page):
-        header = """<!DOCTYPE html>
+    def page(self, title, page):
+        header = """<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
 <head>
-<title>""" + book['title'] + ": " + page['name'] + """</title>
+<title>""" + title + """</title>
 <link href="../style.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 """;
-
         footer = """
 </body>
 </html>
 """;
+        return header + page + footer;
 
     def cover(self, bookmeta):
         # Assemble the cover page.

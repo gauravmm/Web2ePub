@@ -40,7 +40,7 @@ if __name__ == "__main__":
 
 
     # args = parser.parse_args();
-    args = parser.parse_args(["http://m.fanfiction.net/s/5483280/1/Harry-Potter-and-the-Champion-s-Champion"]);
+    args = parser.parse_args(["https://m.fanfiction.net/s/7848660/2/"]);
    
     try:
         run(args);
