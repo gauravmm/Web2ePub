@@ -1,15 +1,13 @@
 """
-Styling
-Styles specific to devices.
+Default Style.
 
 @author: GauravManek
 """
+from plugins import BaseStyle, register;
 
-class StyleBase(object):
+class DefaultStyle(BaseStyle):
     def __init__(self):
-        # A short string used to report this name in the style.
         self.name = "Default";
-        # A short string used to identify this styling option in the commandline.
         self.devstr = "def";
 
     def page(self, title, page):
@@ -42,18 +40,6 @@ class StyleBase(object):
         #cover h1 { padding-top: 100px; font-size: 200%; }
         #cover div { padding-top: 50px; font-style: italic; width: 100%; }
         """;
-         
 
-
-class StyleNookGP(StyleBase):
-    def __init__(self):
-        super(StyleNookGP,self).__init__();
-        self.name = "Nook GlowLight Plus";
-        self.devstr = "ngp";
-        
-
-def getstyle(devstr):
-    for styler in [StyleBase(), StyleNookGP()]:
-        if devstr == styler.devstr:
-            return styler;
-    
+if __name__ == "plugins":
+    register(DefaultStyle());

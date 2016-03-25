@@ -3,7 +3,7 @@ Publisher
 Given a output from the scraper, produces output as an ePub file. Supports
 styling using plugins.
 
-@author: GauravManek
+Gaurav Manek
 """
 import zipfile, uuid;
 from os import path;

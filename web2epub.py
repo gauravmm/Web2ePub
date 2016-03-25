@@ -1,4 +1,11 @@
-import argparse, urlparse, re;
+"""
+Web2Pub.py
+Scrapes websites and converts them to ePub, using a pluginnable framework.
+
+GauravManek
+"""
+
+import plugins, argparse, urlparse, re;
 from scraper import scrape;
 from publisher import epub;
         
@@ -43,6 +50,7 @@ if __name__ == "__main__":
     args = parser.parse_args(["http://m.fanfiction.net/s/5483280/1/Harry-Potter-and-the-Champion-s-Champion"]);
    
     try:
+        plugins.load();
         run(args);
     except (RuntimeError, TypeError) as e:
         print "Error: {0}".format(e);
