@@ -108,12 +108,17 @@ class FFNetParser(BaseWebsiteParser):
               
         # Flatten it into a single array
         rv["data"] = "";
-        lines = (self._processLine(ch) for ch in soup.find('div', id='storycontent').children);
+        lines = (self._processLine(i, ch) for i, ch in enumerate(soup.find('div', id='storycontent').children));
         for l in lines:
             rv["data"] += "\n" + l;
+        
+        # Do we need to insert a start-of-document title?
+        if self._heuristicTitleState == 0:
+            rv["data"] = "<h1>" + rv["name"] + "</h1>\n" + rv["data"];
+            
         return rv;
 
-    def _processLine(self, ch):
+    def _processLine(self, i, ch):
         if isinstance(ch, NavigableString):
             if(len(str(ch).strip()) == 0):
                 return "";
@@ -122,8 +127,9 @@ class FFNetParser(BaseWebsiteParser):
         else:
             if self._heuristicIsSeparator(ch):
                 return "<hr />"; # We customize this in CSS.
-            elif self._heuristicIsTitle(ch):
-                return unicode("<h1>" + ch.get_text(" ", strip=True) + "</h1>")
+            elif self._heuristicIsTitle(i, ch):
+                h = "h" + str(self._heuristicTitleState);
+                return unicode("<" + h + ">" + ch.get_text(" ", strip=True) + "</" + h + ">")
             else:
                 return unicode(ch);
     
@@ -138,8 +144,22 @@ class FFNetParser(BaseWebsiteParser):
             # likely to be a separator.
         return False;
     
-    def _heuristicIsTitle(self, ch):
-        return (ch.has_attr('style') and "text-align:center;" in ch['style']);
+    def _heuristicIsTitle(self, i, ch):
+        if i == 0:
+            self._heuristicTitleState = 0;
+        
+        if (ch.has_attr('style') and "text-align:center;" in ch['style']):
+            # If we don't find a bold, then its not a title
+            # If we find a bold and italics, then something is being emphasized
+            # and this is unlikely to be a title.    
+            if not ch.find("strong") or ch.find("em"): 
+                return False;
+            
+            if i < 10 and self._heuristicTitleState == 0:
+                self._heuristicTitleState = 1;
+            else:
+                self._heuristicTitleState = 2;
+            return True;
         
 class WhatIfXKCDParser(object):
     # Called in the initializer:

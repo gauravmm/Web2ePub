@@ -29,7 +29,7 @@ def initFile(fn):
     # exactly what we need. See https://en.wikipedia.org/wiki/EPUB for a quick
     # description, and http://idpf.org/epub for the spec.
     # Taking apart existing .epub files also helps.
-    rv = zipfile.ZipFile(fn + ".zip", 'w');
+    rv = zipfile.ZipFile(fn, 'w');
     
     # The first file in the archive must be the mimetype file.
     rv.writestr("mimetype", "application/epub+zip");
@@ -49,11 +49,11 @@ def initFile(fn):
 def buildTOCInner(chapterList):
     # Assemble the TOC as a page.
     toc  = "<nav epub:type=\"toc\" id=\"toc\"><ol>\n";
-    toc += "\n".join("<li><a href=\"" + fn + "\">" + name + "</a></li>" for fn, data, name, id, opt in chapterList);
+    toc += "\n".join("<li><a href=\"../" + fn + "\">" + name + "</a></li>" for fn, data, name, id, opt in chapterList);
     toc += "\n</ol></nav>";
     return toc;
 
-MIMELookup = {".html": "text/html", ".css": "text/css", ".jpg": "image/jpeg",
+MIMELookup = {".xhtml": "application/xhtml+xml", ".html": "text/html", ".css": "text/css", ".jpg": "image/jpeg",
               ".gif": "image/gif", ".png": "image/png", ".svg": "iamge/svg+xml"};
 def getMIMEFromFn(fn):
     fnb, ext = path.splitext(fn);
@@ -135,7 +135,7 @@ def epub(inp, fn, style_devstr):
     modtime = PUBLISHER_TIME();    
     
     # From Chapter Number to filename:
-    htmlFn = lambda fn: "html/" + (("p" + str(fn)) if str(fn)[0].isdigit() else str(fn)) + ".html";
+    htmlFn = lambda fn: "html/" + (("p" + str(fn)) if str(fn)[0].isdigit() else str(fn)) + ".xhtml";
     # An in-order list of chapters in the book:
     # As a 5-tuple: Filename, content, Text title, id, additional properties
     chapterList = [(htmlFn(id), ch["content"], ch["name"], "c" + str(id), {}) for (id, ch) in chpt];
