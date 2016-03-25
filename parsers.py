@@ -39,7 +39,8 @@ class BaseWebsiteParser(object):
     #   rv["images"] = Images to download, as (URL, target) tuples. When saving
     #                  all target names will have image_prefix prepended to 
     #                  them.
-    #   rv["id"]     = A unique id to identify and sort the pages by.
+    #   rv["id"]     = A unique id to identify and sort the pages by. Must be
+    #                  an int.
     #   rv["also"]   = A list of additional ids of pages to consider. This
     #                  can include duplicates and may include pages that do not
     #                  exist. You can pass the entire list of pages to this, or
@@ -53,7 +54,7 @@ class BaseWebsiteParser(object):
     #                  allowed. Otherwise, None.
     def parsePage(self, source, image_prefix):
         return False;
-         
+        
          
 class FFNetParser(BaseWebsiteParser):
     # Called in the initializer:
@@ -82,7 +83,7 @@ class FFNetParser(BaseWebsiteParser):
         
     def parsePage(self, source, pid, image_prefix):
         rv = {};
-        rv["id"] = str(pid[1]);
+        rv["id"] = pid[1];
 
         # We add the links here, knowing only the page id:
         rv["also"] = [(pid[0], pid[1] + 1), (pid[0], 1)];
@@ -104,27 +105,28 @@ class FFNetParser(BaseWebsiteParser):
         comment = [x for x in header.stripped_strings];
         rv["comment"] = "\n".join(" ".join(c) for c in [comment[0:3], comment[3:10]])
         rv["name"] = comment[-1];
-       
-        chitr = soup.find('div', id='storycontent').children;
-        rv["data"] = [];
-        for ch in chitr:
-            if isinstance(ch, NavigableString):
-                if(len(str(ch).strip()) == 0):
-                    continue;
-                else:
-                    ch = "<p>" + str(ch) + "</p>";
-            else:
-                if self._heuristicIsSeparator(ch):
-                    ch = "<hr />"; # We customize this in CSS.
-                elif self._heuristicIsTitle(ch):
-                    ch = "<h1>" + ch.get_text(" ", strip=True) + "</h1>"
-                else:
-                    ch = str(ch);
-                
-            rv["data"].append(ch);
-
+              
+        # Flatten it into a single array
+        rv["data"] = "";
+        lines = (self._processLine(ch) for ch in soup.find('div', id='storycontent').children);
+        for l in lines:
+            rv["data"] += "\n" + l;
         return rv;
-        
+
+    def _processLine(self, ch):
+        if isinstance(ch, NavigableString):
+            if(len(str(ch).strip()) == 0):
+                return "";
+            else:
+                return "<p>" + unicode(ch) + "</p>";
+        else:
+            if self._heuristicIsSeparator(ch):
+                return "<hr />"; # We customize this in CSS.
+            elif self._heuristicIsTitle(ch):
+                return unicode("<h1>" + ch.get_text(" ", strip=True) + "</h1>")
+            else:
+                return unicode(ch);
+    
     def _heuristicIsSeparator(self, ch):
         if(ch.name == "hr"):
             return True;

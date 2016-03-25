@@ -13,10 +13,10 @@ class StyleBase(object):
         self.devstr = "def";
 
     def page(self, book, page):
-        header = """<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+        header = """<!DOCTYPE html>
 <head>
 <title>""" + book['title'] + ": " + page['name'] + """</title>
-<link href="../styles/main.css" rel="stylesheet" type="text/css"/>
+<link href="../style.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 """;
@@ -25,6 +25,20 @@ class StyleBase(object):
 </body>
 </html>
 """;
+
+    def cover(self, bookmeta):
+        # Assemble the cover page.
+        return "<h1>%s</h1>\n<p><em>%s</em></p>" % (bookmeta["title"], bookmeta["author"]);
+    
+    def contents(self, inner):
+        # Assemble the table-of-contents.
+        return "<h1>Contents</h1>\n" + inner;
+                
+    def css(self):
+        return """/* Basic CSS */
+        body { margin: 5px; }
+        """;
+         
 
 
 class StyleNookGP(StyleBase):
