@@ -33,7 +33,7 @@ def run(args):
     print "Loaded Style: \t" + styler.name + ".";
 
     print "Scraping Website";
-    web = scrape(args.url, styler);
+    web = scrape(args.url, styler, cache=(not args.no_cache));
     
     fout = None;
     if args.out:
@@ -58,9 +58,10 @@ if __name__ == "__main__":
     parser.add_argument('-s', '--style', type=str, metavar="STYLE", nargs=1, default=["def"], help='The output style to use.');
     parser.add_argument('-c', '--cover', type=str, metavar="COVER", nargs=1, default="png", help='The cover generator to use, if the parser does not find it.');
     parser.add_argument('--no-cover', action='store_const', default=False, const=True, help='Do not generate a cover page if one does not already exist.');
+    parser.add_argument('--no-cache', action='store_const', default=False, const=True, help='Force a cache miss on this request.');
 
     # args = parser.parse_args();
-    args = parser.parse_args(["http://m.fanfiction.net/s/5483280/1/Harry-Potter-and-the-Champion-s-Champion", "-s",  "ngp"]);
+    args = parser.parse_args(["http://m.fanfiction.net/s/5483280/1/Harry-Potter-and-the-Champion-s-Champion", "--no-cache", "-s",  "ngp"]);
    
     try:
         plugins.load();
