@@ -28,7 +28,7 @@ def scrape(url):
 # Scrape without a cache.
 def scrape_nocache(url):
     # Load the parser:
-    parser = getparser(url);
+    parser = getParser(url);
     if not parser:
         raise RuntimeError("Cannot find a parser that supports this website.");
     
@@ -66,7 +66,7 @@ def scrape_nocache(url):
             continue;
         
         # Copy over properties to the global document, if necessary and available.
-        for prop in ["title", "author", "comment"]:
+        for prop in ["title", "author", "comment", "attrib", "cover"]:
             if prop not in doc and prop in rv:
                 doc[prop] = rv[prop];
 

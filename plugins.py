@@ -49,7 +49,7 @@ def load():
     ls = glob.glob(PLUGIN_DIR + "[!_]*.py");
     for l in ls:        
         _attemptedRegistration = False;
-        execfile(l);
+        execfile(l, globals());
         if not _attemptedRegistration:
             print "Plugin file \"" + l + "\" loaded, but no plugin registered.";
             print "Did you forget to call plugin.register?";
@@ -89,6 +89,8 @@ class BaseWebsiteParser(object):
     # entries:
     #   rv["title"]  = The title of the file
     #   rv["author"] = The author of the file
+    #   rv["attrib"] = An attribution to the source of the material, e.g. "FanFiction.net"
+    #                  Used to generate cover pages.
     #   rv["cover"]  = The URL of the cover image
     #   rv["comment"]= Any additional comment/metadata to include.
     #   rv["name"]   = The title of the page, used in the spine/TOC.

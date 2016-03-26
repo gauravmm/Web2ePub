@@ -4,6 +4,7 @@ Default Style.
 @author: GauravManek
 """
 from plugins import BaseStyle, register;
+from publisher import imagepath;
 
 class DefaultStyle(BaseStyle):
     def __init__(self):
@@ -26,7 +27,10 @@ class DefaultStyle(BaseStyle):
 
     def cover(self, bookmeta):
         # Assemble the cover page.
-        return "<div id=\"cover\"><h1>%s</h1>\n<div>%s</div></div>" % (bookmeta["title"], bookmeta["author"]);
+        if "cover" in bookmeta:
+            return "<div id=\"cover_img\"><img src=\"%s\" alt=\"Cover\" /></div>" % (imagepath() + bookmeta['cover'][0]);
+        else:
+            return "<div id=\"cover\"><h1>%s</h1>\n<div>%s</div></div>" % (bookmeta["title"], bookmeta["author"]);
     
     def contents(self, inner):
         # Assemble the table-of-contents.

@@ -32,6 +32,7 @@ class FFNetParser(plugins.BaseWebsiteParser):
     def parsePage(self, source, pid, image_prefix):
         rv = {};
         rv["id"] = pid[1];
+        rv["attrib"] = "FanFiction.net";
 
         # We add the links here, knowing only the page id:
         rv["also"] = [(pid[0], pid[1] + 1), (pid[0], 1)];
@@ -64,15 +65,24 @@ class FFNetParser(plugins.BaseWebsiteParser):
         # Do we need to insert a start-of-document title?
         if self._heuristicTitleState == 0:
             rv["data"] = "<h1>" + rv["name"] + "</h1>\n" + rv["data"];
+
+        # Replace HTML Entities that BeautifulSoup can't seem to fix:
+        rv["data"] = self._fixEntities(rv["data"]);
             
         return rv;
+
+    _replacements = [("&hellip;", u"\u2026")];
+    def _fixEntities(self, data):
+        for fr, to in self._replacements:
+            data = data.replace(fr, to);
+        return data;
 
     def _processLine(self, i, ch):
         if isinstance(ch, NavigableString):
             if(len(str(ch).strip()) == 0):
                 return "";
             else:
-                return "<p>" + ch.prettify(formatter='html') + "</p>";
+                return "<p>" + ch.prettify(formatter='minimal') + "</p>";
         else:
             if self._heuristicIsSeparator(ch):
                 return "<hr />"; # We customize this in CSS.
@@ -80,7 +90,7 @@ class FFNetParser(plugins.BaseWebsiteParser):
                 h = "h" + str(self._heuristicTitleState);
                 return unicode("<" + h + ">" + ch.get_text(" ", strip=True) + "</" + h + ">")
             else:
-                return ch.prettify(formatter='html');
+                return ch.prettify(formatter='minimal');
     
     def _heuristicIsSeparator(self, ch):
         if(ch.name == "hr"):
