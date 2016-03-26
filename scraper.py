@@ -10,7 +10,7 @@ from publisher import imagepath;
 
 # For debugging purposes, this allows us to cache arbitrary scraper input.
 # This means we can quickly test ePub output.
-def scrape(url):
+def scrape(url, styler):
     folder = "cache/";
     
     urlstr = re.sub("[^0-9a-zA-Z]", '_', str(".".join([url.netloc, url.path])));
@@ -20,13 +20,13 @@ def scrape(url):
         with open(fn, 'rb') as f:
             return pickle.load(f);
     else:
-        rv = scrape_nocache(url);
+        rv = scrape_nocache(url, styler);
         with open(fn, 'wb') as f:
             pickle.dump(rv, f);
         return rv;
 
 # Scrape without a cache.
-def scrape_nocache(url):
+def scrape_nocache(url, styler):
     # Load the parser:
     parser = getParser(url);
     if not parser:
@@ -60,7 +60,7 @@ def scrape_nocache(url):
             continue;
         
         # We do not support pictures yet.
-        rv = parser.parsePage(req.text, pid, img_pre);
+        rv = parser.parsePage(req.text, pid, img_pre, styler);
         # If rv is an error page, skip it.
         if not rv:
             continue;

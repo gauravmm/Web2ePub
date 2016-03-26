@@ -8,7 +8,7 @@ Gaurav Manek
 import zipfile, uuid;
 from os import path, remove;
 from time import strftime, gmtime;
-from plugins import getStyle, getCover;
+from plugins import getCover;
 from bs4 import NavigableString;
 from bs4 import BeautifulSoup as bs4;
 from io import BytesIO;
@@ -198,7 +198,7 @@ def buildNCX(uid, bookmeta, filelist):
     return ncx.prettify();
 
 
-def epub(inp, fn, args):
+def epub(inp, fn, styler, args):
     # Split it into metadata, chapters, and images.    
     meta, chpt, imgs = inp;
     # Sort the chapters
@@ -216,11 +216,6 @@ def epub(inp, fn, args):
     # As a 5-tuple: Filename, content, Text title, id, additional properties
     chapterList = [(htmlFn(id), ch["content"], ch["name"], "c" + str(id), {}) for (id, ch) in chpt];
     
-    styler = getStyle(args.style);
-    if not styler:
-        raise RuntimeError("Cannot find output style " + args.style + ".");
-    print "\tStyle: \t" + styler.name + ".";
-
     # Create a cover page if we need to:
     if "cover" not in meta and not args.no_cover:
         cover = getCover(args.cover);
@@ -267,6 +262,7 @@ def epub(inp, fn, args):
     finally:
         # Close the file.
         epb.close();
-        remove(tmpfile)
+        if (path.exists(tmpfile)):
+            remove(tmpfile);
     
     return True;

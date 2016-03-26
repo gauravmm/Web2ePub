@@ -40,6 +40,7 @@ class DefaultStyle(BaseStyle):
         return """/* Basic CSS */
         body { margin: 5px; }
         nav#toc ol { list-style-type: none; }
+        #cover_img {width: 100%; height: 95%; text-align:center;}
         #cover { text-align: center; width: 100%; height: 90%; border: thick solid black;}
         #cover h1 { padding-top: 100px; font-size: 200%; }
         #cover div { padding-top: 50px; font-style: italic; width: 100%; }

@@ -29,7 +29,7 @@ class FFNetParser(plugins.BaseWebsiteParser):
     def getUrlFromId(self, pid):
         return "http://m.fanfiction.net/s/" + pid[0] + "/" + str(pid[1]);
         
-    def parsePage(self, source, pid, image_prefix):
+    def parsePage(self, source, pid, image_prefix, styler):
         rv = {};
         rv["id"] = pid[1];
         rv["attrib"] = "FanFiction.net";
@@ -58,13 +58,13 @@ class FFNetParser(plugins.BaseWebsiteParser):
               
         # Flatten it into a single array
         rv["data"] = unicode("");
-        lines = (self._processLine(i, ch) for i, ch in enumerate(soup.find('div', id='storycontent').children));
+        lines = (self._processLine(i, ch, styler) for i, ch in enumerate(soup.find('div', id='storycontent').children));
         for l in lines:
             rv["data"] += "\n" + l;
         
         # Do we need to insert a start-of-document title?
         if self._heuristicTitleState == 0:
-            rv["data"] = "<h1>" + rv["name"] + "</h1>\n" + rv["data"];
+            rv["data"] = styler.header(1, rv["name"]) + "\n" + rv["data"];
 
         # Replace HTML Entities that BeautifulSoup can't seem to fix:
         rv["data"] = self._fixEntities(rv["data"]);
@@ -77,7 +77,7 @@ class FFNetParser(plugins.BaseWebsiteParser):
             data = data.replace(fr, to);
         return data;
 
-    def _processLine(self, i, ch):
+    def _processLine(self, i, ch, s):
         if isinstance(ch, NavigableString):
             if(len(str(ch).strip()) == 0):
                 return "";
@@ -85,10 +85,9 @@ class FFNetParser(plugins.BaseWebsiteParser):
                 return "<p>" + ch.prettify(formatter='minimal') + "</p>";
         else:
             if self._heuristicIsSeparator(ch):
-                return "<hr />"; # We customize this in CSS.
+                return s.section_break(); # We customize this in CSS.
             elif self._heuristicIsTitle(i, ch):
-                h = "h" + str(self._heuristicTitleState);
-                return unicode("<" + h + ">" + ch.get_text(" ", strip=True) + "</" + h + ">")
+                return s.header(self._heuristicTitleState, ch.get_text(" ", strip=True));
             else:
                 return ch.prettify(formatter='minimal');
     

@@ -113,7 +113,9 @@ class BaseWebsiteParser(object):
     #   source       = A string containing the raw source of the page.
     #   image_prefix = A prefix to the basename of the image, if images are 
     #                  allowed. Otherwise, None.
-    def parsePage(self, source, image_prefix):
+    #   styler       = The styler, to get markup from. You will probably need
+    #                  styler.header and styler.section_break;
+    def parsePage(self, source, image_prefix, styler):
         return False;
 
 
@@ -154,6 +156,17 @@ class BaseStyle(object):
     #   bookmeta = The book metadata.
     def css(self, bookmeta):
         return "/* Basic CSS */";
+
+    # Produce a string containing the markup for a section header, given:
+    #   level  = 1 or 2, depending on if this is a big or small header.
+    #   string = The contents of the header.
+    def header(self, level, string):
+        h = "h" + str(2 if level == 2 else 1);
+        return unicode("<" + h + ">" + string + "</" + h + ">");
+
+    # Produce a string containing the markup for a section break:
+    def section_break(self):
+        return unicode("<hr />");
 
 
 # Base class for all coverpage generators.
