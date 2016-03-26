@@ -49,7 +49,7 @@ if __name__ == "__main__":
     parser.add_argument('url', type=arg_url, help='A URL to start from.');
     parser.add_argument('-o', '--out', type=str, metavar="OUTPUT", nargs=1, help='The filename to write to. epub automatically appended if necessary.');
     parser.add_argument('-s', '--style', type=str, metavar="STYLE", nargs=1, default="def", help='The output style to use.');
-    parser.add_argument('-c', '--cover', type=str, metavar="COVER", nargs=1, default="svg", help='The cover generator to use, if the parser does not find it.');
+    parser.add_argument('-c', '--cover', type=str, metavar="COVER", nargs=1, default="png", help='The cover generator to use, if the parser does not find it.');
     parser.add_argument('--no-cover', action='store_const', default=False, const=True, help='Do not generate a cover page if one does not already exist.');
 
     # args = parser.parse_args();
