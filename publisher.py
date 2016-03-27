@@ -5,7 +5,7 @@ styling using plugins.
 
 Gaurav Manek
 """
-import zipfile, uuid;
+import zipfile, uuid, re;
 from os import path, remove;
 from time import strftime, gmtime;
 from plugins import getCover;
@@ -152,8 +152,9 @@ def buildOPF(uid, modtime, bookmeta, filelist, spinelist, imagelist):
 		spine.append(soup.new_tag("itemref", **v));
 	package.append(spine);
 
-		
-	return soup.prettify(formatter=None);
+	rv = soup.encode('UTF-8', formatter=None);
+	rv = re.sub("(?<=[^\n])(<[a-zA-Z][a-zA-Z0-9\:]*)", "\n\\1", rv);
+	return rv;
 
 
 def buildNCX(uid, bookmeta, filelist):
