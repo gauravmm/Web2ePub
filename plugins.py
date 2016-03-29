@@ -168,6 +168,10 @@ class BaseStyle(object):
 	def section_break(self):
 		return unicode("<hr />");
 
+	# Change anything in the book metadata before publishing it.
+	def edit_book_metadata(self, bookmeta):
+		return bookmeta;
+
 
 # Base class for all coverpage generators.
 class BaseCover(object):

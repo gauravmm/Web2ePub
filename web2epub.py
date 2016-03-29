@@ -23,9 +23,7 @@ def arg_url(string):
 def title_fn(title):
 	# Convert to ASCII:
 	title = title.encode('ascii', 'ignore');
-	# Remove ' within words:
-	title = re.sub("[\b'\b]", '', title);    
-	return re.sub("[^0-9a-zA-Z -]", '_', title).strip() + ".epub";
+	return re.sub("[^0-9a-zA-Z -.]", '', title).strip() + ".epub";
 
 def run(args):
 	styler = getStyle(args.style[0]);
@@ -35,6 +33,11 @@ def run(args):
 
 	print "Scraping Website";
 	web = scrape(args.url, styler, cache=(not args.no_cache));
+
+	if len(web[1]) == 0:
+		raise RuntimeError("No valid pages found!");
+
+	web = (styler.edit_book_metadata(web[0]), web[1], web[2]);
 	
 	fout = title_fn(web[0]["author"] + " - " + web[0]["title"]);
 	if args.out and len(args.out) > 0 and len(args.out[0]) > 0:

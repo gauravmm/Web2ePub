@@ -20,6 +20,12 @@ div.sec_brk { width:100%; text-align:center; font-size:1.5em; padding:0.5em; bac
 	def section_break(self):
 		return u"<div class=\"sec_brk\">\u2014\u3000\u00A7\u3000\u2014</div>";
 
+	def edit_book_metadata(self, bookmeta):
+		# Lastname, Firstname required by NGP:
+		if "attrib" in bookmeta:
+			bookmeta["author"] = bookmeta["attrib"] + ", " + bookmeta["author"];
+		return bookmeta;
+
 
 if __name__ == "plugins":
 	register(NookGPStyle());        

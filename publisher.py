@@ -196,7 +196,12 @@ def buildNCX(uid, bookmeta, filelist):
 		navmap.append(navpoint);
 	ncx.append(navmap);
 
-	return ncx.prettify();
+	ncx = ncx.prettify();
+	# We need to strip the spaces around <text> and </text> out for compatibility
+	# with some eReaders
+	ncx = re.sub("<text>\s+", "<text>", ncx);
+	ncx = re.sub("\s+</text>", "</text>", ncx);
+	return ncx;
 
 
 def epub(inp, fn, styler, args):
@@ -207,7 +212,7 @@ def epub(inp, fn, styler, args):
 
 	# Prepare the UUID and the creation time:
 	uid = str(uuid.uuid5(PUBLISHER_NAMESPACE, fn)); # Generate a file UUID
-	modtime = PUBLISHER_TIME();    
+	modtime = PUBLISHER_TIME();
 	
 	# From Chapter Number to filename:
 	htmlFn = lambda fn: "html/" + (("p" + str(fn)) if str(fn)[0].isdigit() else str(fn)) + ".xhtml";
