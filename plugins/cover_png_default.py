@@ -27,7 +27,7 @@ class DefaultPNGCover(plugins.BaseCover):
 		
 		# Background:
 		draw.rectangle((10, 10, 590, 990), 0xFF);
-		draw.rectangle((10, 10, 590, 700), 0x66);
+		draw.rectangle((20, 20, 580, 700), 0x33);
 		
 		# Title:
 		MAX_CHAR_LINE = 16;
@@ -39,7 +39,7 @@ class DefaultPNGCover(plugins.BaseCover):
 		title = title.replace("and the", "and_the").replace("of the", "of_the");
 		for word in title.split():
 			line = tt.pop();
-			if word == "and_the":
+			if "_" in word:
 				if len(line) > 0:
 					tt.append(line);
 				tt.append(word.replace("_", " "));
