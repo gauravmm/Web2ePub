@@ -63,7 +63,7 @@ def run(args):
 if __name__ == "__main__":
 	# Parse incoming arguments:
 	parser = argparse.ArgumentParser(description='Converts articles/posts/entries from online sources into an ePub file.');
-	parser.add_argument('url', type=arg_url, help='A URL to start from.');
+	parser.add_argument('url', type=arg_url, help='A URL to start from. Must end with a forward slash (/) if there is no path.');
 	parser.add_argument('-o', '--out', type=str, metavar="OUTPUT", nargs=1, help='The directory or filename to write to. epub automatically appended if necessary. The target directory must exist.');
 	parser.add_argument('-s', '--style', type=str, metavar="STYLE", nargs=1, default=["def"], help='The output style to use.');
 	parser.add_argument('-c', '--cover', type=str, metavar="COVER", nargs=1, default="png", help='The cover generator to use, if the parser does not find it.');

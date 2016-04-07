@@ -91,7 +91,7 @@ class BaseWebsiteParser(object):
 	#   rv["author"] = The author of the file
 	#   rv["attrib"] = An attribution to the source of the material, e.g. "FanFiction.net"
 	#                  Used to generate cover pages.
-	#   rv["cover"]  = The URL of the cover image
+	#   rv["cover"]  = The (filename, URL) of the cover image
 	#   rv["comment"]= Any additional comment/metadata to include.
 	#   rv["name"]   = The title of the page, used in the spine/TOC.
 	#   rv["data"]   = HTML source to put in the ePub, normalized (i.e. with 
@@ -111,11 +111,12 @@ class BaseWebsiteParser(object):
 	#    
 	# Called with:
 	#   source       = A string containing the raw source of the page.
+	#   pid  		 = The Page ID, as provided by getIdFromURL.
 	#   image_prefix = A prefix to the basename of the image, if images are 
 	#                  allowed. Otherwise, None.
 	#   styler       = The styler, to get markup from. You will probably need
 	#                  styler.header and styler.section_break;
-	def parsePage(self, source, image_prefix, styler):
+	def parsePage(self, source, pid, image_prefix, styler):
 		return False;
 
 

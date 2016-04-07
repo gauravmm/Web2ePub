@@ -28,7 +28,7 @@ class DefaultStyle(BaseStyle):
 	def cover(self, bookmeta):
 		# Assemble the cover page.
 		if "cover" in bookmeta:
-			return "<div id=\"cover_img\"><img src=\"%s\" alt=\"Cover\" /></div>" % (imagepath() + bookmeta['cover'][0]);
+			return "<div id=\"cover_img\"><img src=\"%s\" alt=\"Cover\" /></div>" % (imagepath(True) + bookmeta['cover'][0]);
 		else:
 			return "<div id=\"cover\"><h1>%s</h1>\n<div>%s</div></div>" % (bookmeta["title"], bookmeta["author"]);
 	

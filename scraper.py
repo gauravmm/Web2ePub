@@ -48,7 +48,9 @@ def scrape_nocache(url, styler, **varg):
 		if pid in done:
 			continue;
 		
-		img_pre = imagepath(parser.getSimplePageId(pid));
+		img_pre = imagepath(True, parser.getSimplePageId(pid));
+		img_pre_abs = imagepath(False, parser.getSimplePageId(pid));
+
 		dl = parser.getUrlFromId(pid);
 		print "\tDownloading " + dl;
 		# Download dl
@@ -71,13 +73,25 @@ def scrape_nocache(url, styler, **varg):
 				doc[prop] = rv[prop];
 
 		# Now we add the proximate pages to the queue:    
-		queue.extend(rv["also"]);
+		if "also" in rv:
+			queue.extend(rv["also"]);
 		
 		# Add this page with the sorting key:
 		pages.append((rv["id"], {"id": rv["id"], "name": rv["name"], "content": rv["data"]}));
 
 		if "images" in rv:
-			for im in rv["images"]:
-				images.append((im[0], img_pre + im[1]));
+			for fname, url in rv["images"]:
+				images.append((img_pre_abs + fname,  scrape_image(url), img_pre + fname));
 	
+	# Scrape the cover image, if need be:
+	if "cover" in doc:
+		doc["cover"] = (doc["cover"][0], scrape_image(doc["cover"][1]));
+
 	return (doc, pages, images);
+
+def scrape_image(url):
+	req = requests.get(url);
+	if (req.status_code != 200):
+		return None;
+
+	return req.content;

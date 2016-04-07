@@ -5,7 +5,7 @@ styling using plugins.
 
 Gaurav Manek
 """
-import zipfile, uuid, re;
+import zipfile, uuid, re, struct;
 from os import path, remove;
 from time import strftime, gmtime;
 from plugins import getCover;
@@ -22,11 +22,15 @@ PUBLISHER_TIME = lambda : strftime(PUBLISHER_TIMEFT, gmtime());
 OEBPS = "OEBPS/";
 
 # Given path p, produce a relative path to the images folder in an ePub file.
-def imagepath(p=None):
+def imagepath(relative, p=None):
+	prefix = "";
+	if relative:
+		prefix = "../images/";
+
 	if p:
-		return "../images/" + str(p).replace("/", "_") + "/";
+		return prefix + str(p).replace("/", "_") + "/";
 	else:
-		return "../images/";
+		return prefix;
 
 
 def initFile(fn):
@@ -223,15 +227,22 @@ def epub(inp, fn, styler, args):
 	chapterList = [(htmlFn(id), ch["content"], ch["name"], "c" + str(id), {}) for (id, ch) in chpt];
 	
 	# Create a cover page if we need to:
-	if "cover" not in meta and not args.no_cover:
-		cover = getCover(args.cover);
-		print "\tCover: \t" + cover.name + ".";
-		meta["cover"] = cover.cover(meta); 
+	if not args.no_cover:
+		cover = None;
+		if "cover" in meta:
+			fnb, ext = path.splitext(meta["cover"][0]);
+			meta["cover"] = (ext, meta["cover"][1]);
+			print "\tUsing cover image from parser."
+		else:
+			cover = getCover(args.cover);
+			print "\tCover: \t" + cover.name + ".";
+			meta["cover"] = cover.cover(meta); 
 		# Give it a filename and options
 		meta["cover"] = ("cover" + meta["cover"][0], meta["cover"][1], {"cover-image":True, "id":"cover-image"});
 
-	if len(imgs) > 0:
-		print "\tImages are not supported yet!";  
+	imageList = [];
+	for im_fn, data, rel_fn in imgs:
+		imageList.append((imageFn(im_fn), data, {}));
 	
 	# The cover and TOC
 	cover = (htmlFn("cover"), styler.cover(meta), "Cover", "cover", {"linear": True});
@@ -239,7 +250,6 @@ def epub(inp, fn, styler, args):
 	
 	spineList = [cover, toc] + chapterList;
 	spineList = [(fname, styler.page(meta["title"] + ": " + name, data), name, id, opt) for (fname, data, name, id, opt) in spineList]
-	imageList = [];    # TODO: Add every image to imageList;
 	if "cover" in meta:
 		# We want the absolute filename in the imageList, but not passed to the styler.
 		imageList.append((imageFn(meta["cover"][0]), meta["cover"][1], meta["cover"][2]));
@@ -250,7 +260,7 @@ def epub(inp, fn, styler, args):
 	
 	# Write the OPF file:
 	opf = buildOPF(uid, modtime, meta, fileList, spineList, imageList);    
-	
+	epb = None;
 	try:
 		tmpfile = '.temp'
 		# Now we write everything to the output file
@@ -267,7 +277,8 @@ def epub(inp, fn, styler, args):
 			epb.write(tmpfile, OEBPS + fn);
 	finally:
 		# Close the file.
-		epb.close();
+		if epb:
+			epb.close();
 		if (path.exists(tmpfile)):
 			remove(tmpfile);
 	

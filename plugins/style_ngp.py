@@ -14,7 +14,9 @@ class NookGPStyle(DefaultStyle):
 	def css(self):
 		rv = super(NookGPStyle, self).css();
 		return rv + u"""
-div.sec_brk { width:100%; text-align:center; padding:0.5em; background:white; }""";
+div.sec_brk { width:100%; text-align:center; padding:0.5em; background:white; }
+body { padding: 0; margin: 0; }
+img { max-width: 100%; margin: auto; }""";
 
 	# Produce a string containing the markup for a section break:
 	def section_break(self):
